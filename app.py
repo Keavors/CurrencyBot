@@ -1,6 +1,6 @@
 import telebot
 from config import keys, TOKEN
-from utils import ConvertionException, Converter
+from extensions import APIException, Converter
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -23,24 +23,24 @@ def values(message: telebot.types.Message):
 @bot.message_handler(content_types=['text'])
 def convert(message: telebot.types.Message):
     try:
-        values = message.text.split(' ')
+        values = [i.capitalize() for i in message.text.split(' ')]
 
         if len(values) > 3:
-            raise ConvertionException('Слишком много параметров.')
+            raise APIException('Слишком много параметров.')
         elif len(values) < 3:
-            raise ConvertionException('Слишком мало параметров.')
+            raise APIException('Слишком мало параметров.')
 
         quote, base, amount = values
-        total_base, amount = Converter.convert(quote, base, amount)
+        total_base, amount = Converter.get_price(quote, base, amount)
 
-    except ConvertionException as e:
+    except APIException as e:
         bot.reply_to(message, f'Ошибка пользователя\n{e}')
 
     except Exception as e:
         bot.reply_to(message, f'Не удалось обработать команду\n{e}')
 
     else:
-        text = f'Цена {amount} {quote} в {base} - {amount * total_base}'
+        text = f'Цена {amount} {quote.lower()} в {base.lower()} - {amount * total_base}'
         bot.send_message(message.chat.id, text)
 
 
