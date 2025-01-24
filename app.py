@@ -30,8 +30,8 @@ def convert(message: telebot.types.Message):
         elif len(values) < 3:
             raise APIException('Слишком мало параметров.')
 
-        quote, base, amount = values
-        total_base, amount = Converter.get_price(quote, base, amount)
+        base, quote, amount = values
+        total_base, amount = Converter.get_price(base, quote, amount)
 
     except APIException as e:
         bot.reply_to(message, f'Ошибка пользователя\n{e}')
@@ -40,7 +40,7 @@ def convert(message: telebot.types.Message):
         bot.reply_to(message, f'Не удалось обработать команду\n{e}')
 
     else:
-        text = f'Цена {amount} {quote.lower()} в {base.lower()} - {amount * total_base}'
+        text = f'Цена {amount} {base.lower()} в {quote.lower()} - {amount * total_base}'
         bot.send_message(message.chat.id, text)
 
 
